@@ -19,6 +19,9 @@ public class GlassView extends View {
     private final Paint specular = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint rim = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint glow = new Paint(Paint.ANTI_ALIAS_FLAG);
+    /** tvos_focus: the beveled rim, bright at the top left and fading to the bottom right. */
+    private final Paint bevel = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint bevelFill = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final RectF rect = new RectF();
     private final float density;
     private float radius;
@@ -26,6 +29,8 @@ public class GlassView extends View {
     private int glowRgb = 0xFFFFFF;
     /** Glow strength: the white glow stays faint, a coloured one needs more alpha to read as warm light. */
     private int glowAlpha = 0x30;
+    /** Draw the tvOS highlight (config.xml tvos_focus) while no accent tints the glass. */
+    private boolean tvos;
 
     public GlassView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -35,6 +40,8 @@ public class GlassView extends View {
         rim.setStrokeWidth(1.5f * density);
         rim.setColor(0xCCFFFFFF);
         glow.setStyle(Paint.Style.STROKE);
+        bevel.setStyle(Paint.Style.STROKE);
+        bevel.setStrokeWidth(2f * density);
         // Cache the slab as a texture. The spring only changes translation, so the GPU can
         // move it without replaying clipPath and the glow on every frame. That path is
         // software-rendered on the MT5895 and is what makes the highlight crawl.
@@ -58,6 +65,11 @@ public class GlassView extends View {
         invalidate();
     }
 
+    void setTvosFocus(boolean on) {
+        tvos = on;
+        invalidate();
+    }
+
     void setRadius(float px) {
         radius = px;
         invalidate();
@@ -68,12 +80,21 @@ public class GlassView extends View {
         super.onSizeChanged(w, h, oldw, oldh);
         fill.setShader(new LinearGradient(0, 0, 0, h, 0x3DFFFFFF, 0x12FFFFFF, Shader.TileMode.CLAMP));
         specular.setShader(new LinearGradient(0, 0, 0, h * 0.45f, 0x66FFFFFF, 0x00FFFFFF, Shader.TileMode.CLAMP));
+        if (tvos) {
+            bevel.setShader(new LinearGradient(0, 0, w, h, new int[] {0xF2FFFFFF, 0x40FFFFFF, 0x14FFFFFF},
+                    new float[] {0f, 0.45f, 1f}, Shader.TileMode.CLAMP));
+            bevelFill.setShader(new LinearGradient(0, 0, 0, h * 0.4f, 0x33FFFFFF, 0x00FFFFFF, Shader.TileMode.CLAMP));
+        }
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         float inset = 6f * density;   // room for the glow
         rect.set(inset, inset, getWidth() - inset, getHeight() - inset);
+        if (tvos && glowRgb == 0xFFFFFF) {
+            drawTvos(canvas, inset);
+            return;
+        }
 
         // Outer glow: thin rings across the inset, each a little fainter, so it fades out smoothly. Three wide
         // strokes left visible bands once the glow took an app's colour at a stronger alpha. The hardware layer
@@ -98,5 +119,23 @@ public class GlassView extends View {
         canvas.restore();
 
         canvas.drawRoundRect(rect, radius, radius, rim);
+    }
+
+    /** tvOS: a soft shadow below instead of a glow, a faint sheen on the top of the tile and the beveled rim. */
+    private void drawTvos(Canvas canvas, float inset) {
+        int rings = 12;
+        float step = inset / rings, drop = 2f * density;
+        glow.setStrokeWidth(step + 0.5f);
+        for (int i = 0; i < rings; i++) {
+            float o = step * (i + 0.5f);
+            glow.setColor(Math.round(0x50 * (1f - (float) i / rings)) << 24);
+            canvas.drawRoundRect(rect.left - o, rect.top - o + drop, rect.right + o, rect.bottom + o + drop,
+                    radius + o, radius + o, glow);
+        }
+        canvas.save();
+        canvas.clipRect(rect.left, rect.top, rect.right, rect.top + rect.height() * 0.4f);
+        canvas.drawRoundRect(rect, radius, radius, bevelFill);
+        canvas.restore();
+        canvas.drawRoundRect(rect, radius, radius, bevel);
     }
 }

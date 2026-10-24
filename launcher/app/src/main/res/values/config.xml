@@ -206,6 +206,15 @@
          through it. false (the default) keeps the solid near-black band, or the cinematic shelf's dark glass. Can
          also be set with "dock_glass": true in a theme's config.json. -->
     <bool name="dock_glass">false</bool>
+    <!-- The focus highlight as tvOS draws it: no glow around the tile, a beveled glass rim that is bright at the top left and
+         fades towards the bottom right, and a soft shadow under the tile. Reorder mode and a festive accent keep the
+         normal highlight. false (the default) keeps the white glass and its glow. Can also be set with "tvos_focus": true
+         in a theme's config.json. -->
+    <bool name="tvos_focus">false</bool>
+    <!-- The greeting ("Good evening") in large light type, with the time, AM/PM and date on one smaller line under it.
+         false (the default) keeps the small capitals greeting over the large clock. Can also be set with
+         "greeting_first": true in a theme's config.json. -->
+    <bool name="greeting_first">false</bool>
     <!-- The dock band's padding equals the gap between its tiles on all four sides (as far as the grid's edges leave room),
          so its corners are concentric with the tiles' and the spacing reads even. false (the default) keeps the fixed
          14dp above and below, up to 22dp at the sides and 26dp corners. Can also be set with "dock_even_padding": true in a theme's config.json. -->

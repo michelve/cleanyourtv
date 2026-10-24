@@ -395,6 +395,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         sky = findViewById(R.id.sky);
         sky.setIntensity(cfg.skyIntensity);
         glass = findViewById(R.id.glass);
+        glass.setTvosFocus(cfg.tvosFocus);
         if (festive) glass.setAccent(festival.accentColor());
         ambient = findViewById(R.id.ambient);
         // The glow is one bitmap, so its alpha can be applied while drawing it. Otherwise every frame of
@@ -422,8 +423,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (!cfg.dockTitle) hero.setVisibility(View.GONE);
         greeting = findViewById(R.id.greeting);
         clockBlock = findViewById(R.id.leftBlock);
+        if (cfg.greetingFirst) applyGreetingFirst();
         greetingColor = greeting.getCurrentTextColor();
-        if (getResources().getBoolean(R.bool.rtl_menu_bar)) {
+        if (getResources().getBoolean(R.bool.rtl_menu_bar) && !cfg.greetingFirst) {
             // Center Hebrew greetings over the numeric time, independent of a visible AM/PM label.
             findViewById(R.id.clock).addOnLayoutChangeListener((v, l, t, right, bottom, ol, ot, or, ob) -> {
                 ViewGroup.LayoutParams params = greeting.getLayoutParams();
@@ -2285,6 +2287,35 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             greeting.setTextColor(greetingColor);
         }
         if (shamsi) shamsiDate.setText(Shamsi.today(getResources()));
+    }
+
+    /** greeting_first: the greeting in large light type, the time and date on one smaller line under it. */
+    private void applyGreetingFirst() {
+        greeting.setTextSize(TypedValue.COMPLEX_UNIT_SP, 44f);
+        greeting.setTypeface(UiFont.get(this, R.string.font_light));
+        greeting.setAllCaps(false);
+        greeting.setLetterSpacing(-0.02f);
+        greeting.setTextColor(0xFFFFFFFF);
+        greeting.setIncludeFontPadding(false);
+        greeting.setPadding(0, 0, 0, (int) (8 * density));
+        ((ViewGroup.MarginLayoutParams) greeting.getLayoutParams()).setMarginStart(0);
+        TextView clock = findViewById(R.id.clock);
+        clock.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f);
+        clock.setTypeface(UiFont.get(this, R.string.font_regular));
+        clock.setLetterSpacing(0.02f);
+        clock.setTextColor(0xD9FFFFFF);
+        TextView ampm = findViewById(R.id.ampm);
+        ampm.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
+        bottomMargin(ampm, 1);
+        View divider = findViewById(R.id.clockDivider);
+        divider.getLayoutParams().height = (int) (16 * density);
+        bottomMargin(divider, 2);
+        bottomMargin(findViewById(R.id.dateBlock), 2);
+    }
+
+    private void bottomMargin(View v, int dp) {
+        ((ViewGroup.MarginLayoutParams) v.getLayoutParams()).bottomMargin = (int) (dp * density);
+        v.requestLayout();
     }
 
     // ---- race-weekend panel (a theme's race_calendar) -----------------------------------------------
