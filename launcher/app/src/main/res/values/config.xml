@@ -215,6 +215,11 @@
          false (the default) keeps the small capitals greeting over the large clock. Can also be set with
          "greeting_first": true in a theme's config.json. -->
     <bool name="greeting_first">false</bool>
+    <!-- The Inputs and gear menus as tvOS draws them: darker glass with rounder corners, a device's name with its port
+         on a smaller line under it, a green dot instead of "Connected" and empty ports
+         dimmed instead of "No device". false (the default) keeps the one-line rows. Can also be set with
+         "tvos_menus": true in a theme's config.json. -->
+    <bool name="tvos_menus">false</bool>
     <!-- The dock band's padding equals the gap between its tiles on all four sides (as far as the grid's edges leave room),
          so its corners are concentric with the tiles' and the spacing reads even. false (the default) keeps the fixed
          14dp above and below, up to 22dp at the sides and 26dp corners. Can also be set with "dock_even_padding": true in a theme's config.json. -->

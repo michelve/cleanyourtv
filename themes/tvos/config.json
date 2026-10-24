@@ -19,6 +19,7 @@
   "dock_title": false,
   "tvos_focus": true,
   "greeting_first": true,
+  "tvos_menus": true,
   "dock_glass": true,
   "dock_even_padding": true,
   "app_glow": false,

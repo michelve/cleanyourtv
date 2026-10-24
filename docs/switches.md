@@ -31,3 +31,4 @@ the rules. Keys from before this rule are on its wanted list; a screenshot for o
 | `gamepad_passthrough` | <img src="switches/gamepad_passthrough.jpg" width="320" alt="gamepad_passthrough on a TV"> |
 | `tvos_focus` | <img src="switches/tvos_focus.jpg" width="320" alt="tvos_focus on a TV"> |
 | `greeting_first` | <img src="switches/greeting_first.jpg" width="320" alt="greeting_first on a TV"> |
+| `tvos_menus` | <img src="switches/tvos_menus.jpg" width="320" alt="tvos_menus on a TV"> |

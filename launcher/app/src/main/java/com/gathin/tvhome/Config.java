@@ -147,6 +147,8 @@ final class Config {
     final boolean tvosFocus;
     /** The greeting in large type with the time and date on a smaller line under it (config.xml greeting_first). */
     final boolean greetingFirst;
+    /** The Inputs and gear menus as tvOS draws them (config.xml tvos_menus). */
+    final boolean tvosMenus;
     /** Stock launcher whose home screen is sent back here if the firmware revives it (config.xml stock_home_redirect). */
     final String stockHomeRedirect;
     /** The Settings button opens the quick settings panel instead of the TV's Settings (settings_key_panel). */
@@ -224,7 +226,7 @@ final class Config {
                    List<RaceWeekend.Race> raceCalendar, boolean cinematicHome, boolean ambientGlow, boolean appGlow, boolean fadeRows, int homeIdleClockMinutes,
                    boolean keyFilter, boolean dockGlass, String glowStyle, boolean wallpaperCaptions,
                    boolean handleViewInputs, boolean tileMenu, boolean dockEvenPadding, boolean cinematicDots, boolean cinematicWhiteFocus, boolean wifiStatusColor, int cinematicScrim, int cinematicArt,
-                   Map<String, Set<String>> wallpaperMoods, boolean gamepadPassthrough, boolean tvosFocus, boolean greetingFirst) {
+                   Map<String, Set<String>> wallpaperMoods, boolean gamepadPassthrough, boolean tvosFocus, boolean greetingFirst, boolean tvosMenus) {
         this.handleViewInputs = handleViewInputs;
         this.tileMenu = tileMenu;
         this.inputKeycodes = inputKeycodes;
@@ -306,6 +308,7 @@ final class Config {
         this.gamepadPassthrough = gamepadPassthrough;
         this.tvosFocus = tvosFocus;
         this.greetingFirst = greetingFirst;
+        this.tvosMenus = tvosMenus;
         this.glowStyle = glowStyle(glowStyle);
         this.wallpaperCaptions = wallpaperCaptions;
     }
@@ -386,6 +389,7 @@ final class Config {
         boolean gamepadPassthrough = res.getBoolean(R.bool.gamepad_passthrough);
         boolean tvosFocus = res.getBoolean(R.bool.tvos_focus);
         boolean greetingFirst = res.getBoolean(R.bool.greeting_first);
+        boolean tvosMenus = res.getBoolean(R.bool.tvos_menus);
         boolean dockGlass = res.getBoolean(R.bool.dock_glass);
         boolean dockEvenPadding = res.getBoolean(R.bool.dock_even_padding);
         boolean cinematicDots = res.getBoolean(R.bool.cinematic_dots);
@@ -467,6 +471,7 @@ final class Config {
             gamepadPassthrough = bool(json, "gamepad_passthrough", gamepadPassthrough);
             tvosFocus = bool(json, "tvos_focus", tvosFocus);
             greetingFirst = bool(json, "greeting_first", greetingFirst);
+            tvosMenus = bool(json, "tvos_menus", tvosMenus);
             dockGlass = bool(json, "dock_glass", dockGlass);
             dockEvenPadding = bool(json, "dock_even_padding", dockEvenPadding);
             cinematicDots = bool(json, "cinematic_dots", cinematicDots);
@@ -530,7 +535,7 @@ final class Config {
                 Math.max(0, Math.min(100, skyIntensity)), settingsKeycodes, settingsKeyPanel, restoreKeyServices, wallpaperEnabled, wallpaper,
                 wallpapers, rotationMinutes, wallpaperDim, dockOpacity, wallpaperOrder, applied,
                 festival, inputKeycodes, appKeys, stockHomeRedirect, json == null ? Collections.emptyList() : raceCalendar(json), cinematic, ambientGlow, appGlow, fadeRows,
-                Math.max(0, idleClockMinutes), keyFilter, dockGlass, glowStyle, wallpaperCaptions, handleViewInputs, tileMenu, dockEvenPadding, cinematicDots, cinematicWhiteFocus, wifiStatusColor, cinematicScrim, cinematicArt, wallpaperMoods, gamepadPassthrough, tvosFocus, greetingFirst);
+                Math.max(0, idleClockMinutes), keyFilter, dockGlass, glowStyle, wallpaperCaptions, handleViewInputs, tileMenu, dockEvenPadding, cinematicDots, cinematicWhiteFocus, wifiStatusColor, cinematicScrim, cinematicArt, wallpaperMoods, gamepadPassthrough, tvosFocus, greetingFirst, tvosMenus);
     }
 
     /**

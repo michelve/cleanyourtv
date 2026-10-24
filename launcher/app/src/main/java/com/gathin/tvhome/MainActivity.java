@@ -247,6 +247,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private int packageSequence;
     /** The Inputs or Module cards dropdown while one is open, so onPause can close it. */
     private PopupWindow openPopup;
+    /** tvos_menus: the tvOS look for the Inputs and gear menus. */
+    private boolean tvosMenus;
     /** Reorder mode is on (top-bar button). */
     private boolean reordering;
     /** Key of the tile being carried in reorder mode, or null. */
@@ -424,6 +426,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         greeting = findViewById(R.id.greeting);
         clockBlock = findViewById(R.id.leftBlock);
         if (cfg.greetingFirst) applyGreetingFirst();
+        tvosMenus = cfg.tvosMenus;
         greetingColor = greeting.getCurrentTextColor();
         if (getResources().getBoolean(R.bool.rtl_menu_bar) && !cfg.greetingFirst) {
             // Center Hebrew greetings over the numeric time, independent of a visible AM/PM label.
@@ -2307,13 +2310,17 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         TextView ampm = findViewById(R.id.ampm);
         ampm.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
         bottomMargin(ampm, 1);
+        // layout-iw arranges the clock row differently and has no divider or date column with these ids.
         View divider = findViewById(R.id.clockDivider);
-        divider.getLayoutParams().height = (int) (16 * density);
-        bottomMargin(divider, 2);
+        if (divider != null) {
+            divider.getLayoutParams().height = (int) (16 * density);
+            bottomMargin(divider, 2);
+        }
         bottomMargin(findViewById(R.id.dateBlock), 2);
     }
 
     private void bottomMargin(View v, int dp) {
+        if (v == null || !(v.getLayoutParams() instanceof ViewGroup.MarginLayoutParams)) return;
         ((ViewGroup.MarginLayoutParams) v.getLayoutParams()).bottomMargin = (int) (dp * density);
         v.requestLayout();
     }
@@ -2892,6 +2899,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     }
 
     private PopupWindow glassPopup(View panel, int width) {
+        if (tvosMenus) {
+            panel.setBackgroundResource(R.drawable.glass_panel_tvos);
+            int p = (int) (6 * density);
+            panel.setPadding(p, p, p, p);
+        }
         final PopupWindow popup = new PopupWindow(panel, width, ViewGroup.LayoutParams.WRAP_CONTENT, true);
         popup.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));   // needed for Back to dismiss
         popup.setOutsideTouchable(true);
@@ -2910,7 +2922,14 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         panel.setPivotY(0f);
         panel.setScaleY(0.92f);
         panel.setTranslationY(-8 * density);
-        popup.showAsDropDown(anchor, 0, (int) (10 * density), gravity);
+        // A list wider than the room right of its pill keeps a margin from the screen's edge instead of touching it.
+        int xoff = 0;
+        if (gravity == Gravity.START) {
+            int[] at = new int[2];
+            anchor.getLocationOnScreen(at);
+            xoff = Math.min(0, root.getWidth() - (int) (32 * density) - at[0] - popup.getWidth());
+        }
+        popup.showAsDropDown(anchor, xoff, (int) (10 * density), gravity);
         panel.animate().alpha(1f).scaleY(1f).translationY(0f).setDuration(reducedMotion ? Motion.REDUCED_MS : 220)
                 .setInterpolator(new android.view.animation.DecelerateInterpolator(1.6f)).start();
     }
@@ -2932,7 +2951,31 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         View dot = row.findViewById(R.id.dot);
         // This TV reports "standby" for every port whether or not something is plugged in, so only
         // definite states are shown.
-        if (state == TvInputManager.INPUT_STATE_CONNECTED) {
+        if (tvosMenus) {
+            // tvOS: the device's name, its port on a smaller line under it, a dot for a connected device and an
+            // empty port dimmed, with no status words.
+            int dotAt = title.indexOf(" · ");
+            TextView name = row.findViewById(R.id.title);
+            name.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f);
+            if (dotAt > 0) {
+                name.setText(title.substring(0, dotAt));
+                TextView sub = row.findViewById(R.id.subtitle);
+                // The port alone: "HDMI 3 (eARC/ARC)" reads "HDMI 3".
+                sub.setText(title.substring(dotAt + 3).replaceAll("\\s*\\(.*\\)", ""));
+                sub.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f);
+                sub.setVisibility(View.VISIBLE);
+            }
+            View icon = row.findViewById(R.id.icon);
+            icon.getLayoutParams().width = icon.getLayoutParams().height = (int) (18 * density);
+            row.getLayoutParams().height = (int) ((dotAt > 0 ? 46 : 38) * density);
+            row.setBackgroundResource(R.drawable.input_row_bg_tvos);
+            status.setVisibility(View.GONE);
+            dot.setVisibility(state == TvInputManager.INPUT_STATE_CONNECTED ? View.VISIBLE : View.GONE);
+            float rest = state == TvInputManager.INPUT_STATE_DISCONNECTED ? 0.45f : 1f;
+            row.setAlpha(rest);
+            row.setOnFocusChangeListener((v, focused) -> v.animate().alpha(focused ? 1f : rest)
+                    .setDuration(reducedMotion ? Motion.REDUCED_MS : 160).start());
+        } else if (state == TvInputManager.INPUT_STATE_CONNECTED) {
             status.setText(R.string.connected);
             dot.setVisibility(View.VISIBLE);
         } else if (state == TvInputManager.INPUT_STATE_DISCONNECTED) {
