@@ -52,11 +52,26 @@ Things that bit us or contributors, so they don't bite you. Commands use `tools/
   USB debugging on: `eth0` stayed listed, and Ethernet connected with debugging still on. It printed
   `host_connected=false` while the adapter was present as `eth0`, so there `host_connected=false` was
   no proof the adapter was gone ([its list](../examples/google-chromecast-gtv-4k/debloat.txt)).
+- **Port 5555 refuses the connection although network debugging is on**, and no Wireless debugging is
+  advertised, seen on a [Wanbo T6R Max projector](devices/wanbo-t6r-max.md) (MediaTek MT5862, Android 9,
+  `TVOS-04.16.031.01.12`): the firmware starts `adbd` on its own port, 5877 there (`service.adb.tcp.port`),
+  and the TV never shows it. Scan the TV's TCP ports (`nmap -p- <tv ip>`, or a short Python loop over
+  `socket.connect_ex`; skip `nc` on macOS) and try each open port with `TV_HOST=<tv ip> TV_PORT=<port>
+  tools/tv.py --probe`: the ADB one answers, the others time out. Every script here honours `TV_PORT`, and
+  the closing check is `tools/adb-closed.py <tv ip> <port>`.
 - **Close port 5555 when you're done**: plaintext, and a shell for anyone on the LAN when `ro.adb.secure=0`. Steps in the README FAQ.
 - **The TV sits on a separate VLAN or IoT network** and `tools/tv.py` times out although debugging
   is on: the router keeps the computer from reaching it. Add a temporary firewall rule from your
   computer to the TV on tcp/5555 only, and remove it again when you close ADB. Opening the whole
   segment, or moving the TV onto the main network for good, undoes the reason it was separate.
+- **Nothing on the network answers while a VPN runs on the computer**, not even the router: `ping`
+  prints `General failure` on Windows and port 5555 times out, although the TV is on the same Wi-Fi and
+  `arp -a` lists it. Seen with Proton VPN's free plan on Windows 11, working on a Sankey SMART_TV (CVTE,
+  HiSilicon Hi3751V350, Android 12). The VPN client's firewall blocks the local network; marking the
+  Wi-Fi as a private network does not change that. Turn on the client's local-network option and
+  reconnect: Windscribe has Allow LAN traffic (Preferences > Connection) on its free plan, Proton VPN's
+  Allow LAN connections is for paid plans only. Or disconnect the VPN for the session. Turn the option
+  off again afterwards if you use public Wi-Fi.
 - **Windows PowerShell 5.1 adds a byte-order mark** to text piped into a program, which turned the
   first batch command into gibberish. `tv.py` now strips it, and the `.ps1` scripts pipe clean UTF-8.
 - **"Allow USB debugging?" comes back** although `adb devices` already works: `tv.py` used its own
@@ -521,6 +536,20 @@ that list. With `restore_key_services` on (`config.xml` or a theme) and `WRITE_S
 (`RESTORE_KEY_SERVICES=1` at install, `-RestoreKeyServices` on Windows), Home puts the helpers that were
 running back on the list the next time it starts; a helper turned off in Settings stays off.
 
+- **Home puts the helper back on the list after a force stop, and it still is not bound.** `dumpsys
+  accessibility` then shows `Bound services:{}`, `accessibility_enabled` falls back to `0`, and the helper
+  sits under `Crashed services`: a killed helper is marked crashed, and Android never binds a crashed
+  service again, whatever the list says. It drops the mark only when it sees the helper leave the list,
+  and after a force stop the list is already empty, so a plain removal changes nothing. `ServiceRepair`
+  therefore adds the helpers, removes them and adds them again, a second apart. Seen on a Hisense SmartTV
+  4K FFM (`songshan`, Android 11, `RTT2.220118.001`), whose standby (`com.hisense.STR_SUSPEND`) kills every
+  third-party app except the one on screen (`PowerVtImp: kill 3rd app`): the remote's app buttons stopped
+  after the first standby with another app open. By hand, the same three writes:
+
+  ```sh
+  tools/tv.py "settings put secure enabled_accessibility_services com.gathin.tvhome/.InputKeyService; sleep 1; settings put secure enabled_accessibility_services ''; sleep 1; settings put secure enabled_accessibility_services com.gathin.tvhome/.InputKeyService"
+  ```
+
 - **Enabled** means the component is in that user's colon-separated list (the class may be written in
   full, `com.gathin.tvhome/com.gathin.tvhome.HomeKeyService`). Match the whole component.
 - **Bound** means it appears under that user's `Bound services` section of the dump (`services` on older
@@ -705,8 +734,11 @@ they do not map, so they are not consuming the volume key. The same was reported
 alone (#944), where the empty list was not tried because it also unhooks the buttons the helpers were
 installed for. An onn 4K Streaming Box (`YOC`, Google TV 14, `URO4.260304.011.B1.15051976`) does the same with
 `HomeKeyService` alone; there `key_filter` false (config.xml or a theme) brought the repeat back with the helper
-still bound, so a helper kept for something other than keys need not cost it. Check the state first, do not
-rewrite it blind:
+still bound, so a helper kept for something other than keys need not cost it. A Hisense 75U75N (`hengshan`,
+Google TV 12, `STT2.230310.002`) with a CEC soundbar does it with `HomeKeyService` alone, and its log shows where
+the repeat goes: the filter hands volume keys to the window policy first, Hisense's policy sends the CEC step and
+consumes the key, so no helper sees it and nothing repeats (the G09 note has the log). Check the state first, do
+not rewrite it blind:
 
 ```sh
 tools/tv.py 'settings get secure enabled_accessibility_services'
