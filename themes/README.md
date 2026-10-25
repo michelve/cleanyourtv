@@ -149,7 +149,7 @@ A new key needs one there in the same pull request.
 | `ambient_glow` | bool | The glow behind the dock in the focused app's colour (`true` by default); `false` keeps only `background_color` or the wallpaper, e.g. for a calm photo background |
 | `app_glow` | bool | The focus highlight glows in the focused app's colour on every tile, as `cinematic_home` does for the dock (`false` by default) |
 | `tvos_focus` | bool | The focus highlight as tvOS draws it: no glow around the tile, a beveled glass rim bright at the top left and fading towards the bottom right, and a soft shadow under the tile; reorder mode and a festive accent keep the normal highlight (`false` by default) |
-| `tvos_menus` | bool | The Inputs and gear menus as tvOS draws them: darker glass with rounder corners, a device's name with its port on a smaller line under it (extras in brackets left off), a green dot instead of "Connected" and empty ports dimmed instead of "No device" (`false` by default) |
+| `tvos_menus` | bool | The Inputs and gear menus as tvOS draws them: the dock's frosted glass over a dark tint, with rounder corners, a device's name with its port on a smaller line under it (extras in brackets left off), a green dot instead of "Connected" and empty ports dimmed instead of "No device" (`false` by default) |
 | `fade_rows` | bool | The rows fade out as they scroll up under the clock instead of being cut off at a hard line; the wallpaper or sky shows through. The grid then draws into a hardware layer (about 6 MB of graphics memory at 1080p) (`false` by default) |
 
 ## Wallpapers

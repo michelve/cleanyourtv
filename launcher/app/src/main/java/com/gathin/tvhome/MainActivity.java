@@ -3194,6 +3194,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private PopupWindow glassPopup(View panel, int width) {
         if (tvosMenus) {
             panel.setBackgroundResource(R.drawable.glass_panel_tvos);
+            // A shadow would show through the see-through glass as a dark smudge; the dock has none either.
+            panel.setElevation(0f);
             int p = (int) (6 * density);
             panel.setPadding(p, p, p, p);
         }
