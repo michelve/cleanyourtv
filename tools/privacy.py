@@ -36,6 +36,21 @@ CATALOGUE = {
         "voice",
         "offline hotword model, unused once the assistant above is off",
     ),
+    "com.google.android.tv.assistant": (
+        "voice",
+        "Google Assistant's LED and hotword service on Android TV, the assistant's listening "
+        "indicator; disabled with katniss in 26 lists in examples/",
+    ),
+    "com.sony.dtv.voicesearch": (
+        "voice",
+        "Sony voice search; the remote's mic button stops working without it, as a Sony list in "
+        "examples/ notes; disabled in 4 Sony lists",
+    ),
+    "com.sony.dtv.assistantadapter": (
+        "voice",
+        "Sony's adapter between the remote's mic button and the Google Assistant; disabled with it "
+        "in 6 Sony lists in examples/",
+    ),
     "org.droidtv.amazonalexa": (
         "voice",
         "Amazon Alexa on Philips sets; the microphone is in the remote, not the panel",
@@ -53,6 +68,11 @@ CATALOGUE = {
         "acr",
         "Samba TV ACR on TCL sets: identifies what is on screen to target ads; shipped enabled on the "
         "Netherlands 43P69K (examples/tcl-g10-google-tv) and a US 55Q651G",
+    ),
+    "tv.samba.ssm": (
+        "acr",
+        "Samba TV ACR on Sony BRAVIA sets: fingerprints what is on screen for ad targeting; disabled "
+        "in 26 of the 37 Sony lists in examples/",
     ),
     "org.droidtv.candeebug": (
         "telemetry",
@@ -98,6 +118,39 @@ CATALOGUE = {
         "telemetry",
         "Google Partner Setup: RLZ partner-attribution pings, with a ping receiver that also runs "
         "at boot; disabled in about a third of the lists in examples/",
+    ),
+    "com.google.android.tv.bugreportsender": (
+        "telemetry",
+        "Android TV's automatic bug report uploader; disabled in 47 lists in examples/",
+    ),
+    "com.qterics.da.product": (
+        "telemetry",
+        "Qterics device agent on Sony sets, a third-party device-management and telemetry client; "
+        "disabled in 30 of the 37 Sony lists in examples/",
+    ),
+    "com.sony.dtv.da.service": (
+        "telemetry",
+        "Sony device agent and remote-support session service, the Qterics agent's partner; disabled "
+        "with it in 30 Sony lists in examples/",
+    ),
+    "com.sonyericsson.idd.agent": (
+        "telemetry",
+        "Sony IDD usage-data agent: collects how the set is used for Sony; disabled in 16 Sony lists "
+        "in examples/",
+    ),
+    "com.sony.dtv.sonybugreportsys": (
+        "telemetry",
+        "Sony bug-report and log uploader; disabled in 20 Sony lists in examples/",
+    ),
+    "com.sony.dtv.usercontext": (
+        "telemetry",
+        "Sony viewing-context providers used for recommendations and profiling; disabled in 10 Sony "
+        "lists in examples/",
+    ),
+    "com.sony.dtv.lastaccess": (
+        "telemetry",
+        "Sony usage agent, as examples/sony-bravia-4k-vh2 describes it; the only list that names it "
+        "so far",
     ),
 }
 
